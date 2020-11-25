@@ -37,6 +37,7 @@ const LogIn = () => {
         <TextInput
         style={styles.input}
         placeholderTextColor='#2C2C2C'
+        secureTextEntry
         placeholder="Password"
     />
           </View>
@@ -84,7 +85,7 @@ const LogIn = () => {
     );
 }
 
-export default LogIn
+export default LogIn;
 
 
 const styles=StyleSheet.create({
