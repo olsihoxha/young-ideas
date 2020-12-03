@@ -1,23 +1,17 @@
-import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View,StatusBar } from 'react-native';
 import LogIn from './components/LogIn';
 import SignUp from './components/SignUp';
+import Home from './components/Home';
+import { NavigationContainer } from '@react-navigation/native';
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <SignUp/>
-      <StatusBar style="auto" />
+    <View>
+       <StatusBar barStyle = "dark-content" hidden = {false} backgroundColor = "#ABEBC6" translucent = {true}/>
+       <NavigationContainer>
+      <Home />
+      </NavigationContainer>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, View,ImageBackground,Dimensions, TouchableOpacity,} from 'react-native';
-import loginbg from '../asset_sources/login.jpg';
 import { Icon } from 'react-native-elements';
 import {LinearGradient} from 'expo-linear-gradient'
 
@@ -12,7 +11,7 @@ const LogIn = () => {
     
     return (
       <View>
-          <ImageBackground source={loginbg} style={{width,height,}}/>
+          <ImageBackground source={require('../asset_sources/login.jpg')} style={{width,height,}}/>
           <View style={{position:'absolute',width,height,backgroundColor:'rgba(234, 250, 241,0.4)'}}/>
           <View style={{position:'absolute',top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center'}}>
           <Text style={{fontSize:50,marginBottom:15}}>{"{Log In}"}</Text>
