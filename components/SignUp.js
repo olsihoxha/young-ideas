@@ -4,13 +4,19 @@ import { Icon } from 'react-native-elements';
 import {LinearGradient} from 'expo-linear-gradient';
 import * as ImagePicker from 'expo-image-picker';
 import profilePic from '../asset_sources/profpic.jpg';
+import firebase from '../config/firebaseConfig';
 
 
 
 const {width,height}=Dimensions.get('screen');
 
-const SignUp = () => {
+const SignUp = ({navigation}) => {
     const [image, setImage] = useState(null);
+    const [name,setName]=useState("");
+    const [email,setEmail]=useState("");
+    const [password,setPassword]=useState("");
+    const [errorMsg,setErrorMsg]=useState("");
+    const [failed,setFailed]=useState(false);
 
     useEffect(() => {
         async () => {
@@ -38,6 +44,27 @@ const SignUp = () => {
       };
 
 
+      function createAccount(){
+        firebase.auth().createUserWithEmailAndPassword(email, password)
+        .then((userCred) => {
+          userCred.user.updateProfile({
+            displayName: name,
+            photoURL: image
+          }).then(function() {
+            // Update successful.
+            navigation.navigate("Main");
+            setFailed(false);
+          }).catch(function(error) {
+            setErrorMsg(error.message);
+            setFailed(true);
+          });
+        })
+        .catch((error) => {
+            setErrorMsg(error.message);
+            setFailed(true);
+         });
+      }
+
     return (
         <View>
         <ImageBackground source={require('../asset_sources/login.jpg')} style={{width,height,}}/>
@@ -58,6 +85,7 @@ const SignUp = () => {
       style={styles.input}
       placeholderTextColor='#2C2C2C'
       placeholder="Name"
+      onChangeText={(text)=>setName(text)}
   />
         </View>
 
@@ -71,6 +99,7 @@ const SignUp = () => {
       style={styles.input}
       placeholderTextColor='#2C2C2C'
       placeholder="E-mail"
+      onChangeText={(text)=>setEmail(text)}
   />
         </View>
 
@@ -85,9 +114,17 @@ const SignUp = () => {
       placeholderTextColor='#2C2C2C'
       secureTextEntry
       placeholder="Password"
+      onChangeText={(text)=>setPassword(text)}
   />
         </View>
-        <TouchableOpacity>
+        {failed && <Text style={{
+            color:'#A93226',
+            fontWeight:'bold',
+            fontSize:14,
+        }}>{errorMsg}</Text>}
+        <TouchableOpacity
+        onPress={createAccount}
+        >
         <LinearGradient
       colors={["#ff7e5f", "#feb47b"]}
       style={styles.button}

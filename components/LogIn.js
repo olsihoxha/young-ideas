@@ -1,13 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { StyleSheet, Text, TextInput, View,ImageBackground,Dimensions, TouchableOpacity,} from 'react-native';
 import { Icon } from 'react-native-elements';
-import {LinearGradient} from 'expo-linear-gradient'
+import {LinearGradient} from 'expo-linear-gradient';
+import firebase from '../config/firebaseConfig';
 
 
 
 
 const {width,height}=Dimensions.get('screen');
-const LogIn = () => {
+const LogIn = ({navigation}) => {
+
+    useEffect(() => {
+      if(firebase.auth().currentUser !=null){
+        navigation.navigate("Main");
+      }
+    }, [navigation]);
+
+    const [email,setEmail]=useState("");
+    const [password,setPassword]=useState("");
+    const [failed,setFailed]=useState(false);
+
+    function LogInProcess(){
+    firebase.auth().signInWithEmailAndPassword(email, password)
+    .then((user) => {
+      setEmail("");
+      setPassword("");
+      setFailed(false);
+      navigation.navigate('Main');
+    })
+    .catch((error) => {
+      alert(error.message);
+      setFailed(true);
+    });
+   }
+
     
     return (
       <View>
@@ -25,9 +51,11 @@ const LogIn = () => {
         style={styles.input}
         placeholderTextColor='#2C2C2C'
         placeholder="E-mail"
+        onChangeText={(text)=>setEmail(text)}
+        value={email}
     />
           </View>
-          <View style={styles.searchSection}>
+          <View style={{...styles.searchSection,marginBottom: failed ? 7 : 20}}>
          <Icon
          style={{padding:5,paddingBottom:0}}
          name='lock'
@@ -38,9 +66,19 @@ const LogIn = () => {
         placeholderTextColor='#2C2C2C'
         secureTextEntry
         placeholder="Password"
+        onChangeText={(text)=>setPassword(text)}
+        value={password}
     />
           </View>
-          <TouchableOpacity>
+          {failed && <Text style={{
+            color:'#A93226',
+            fontWeight:'bold',
+            fontSize:14,
+            }}>Your e-mail or password was incorrect.</Text>}
+          <TouchableOpacity
+          onPress={LogInProcess}
+          style={{marginTop: failed ? 15:0}}
+          >
           <LinearGradient
         colors={["#ff7e5f", "#feb47b"]}
         style={styles.button}
@@ -69,7 +107,9 @@ const LogIn = () => {
       <View style={{width:(width/4),height:2,backgroundColor:'#A93226', justifyContent:'flex-end',marginTop:20}}/>
       </View>
       <Text style={{marginTop:15,textAlign:'center',fontWeight:'bold'}}>Don't you have an account?</Text>
-      <TouchableOpacity>
+      <TouchableOpacity
+      onPress={()=> navigation.navigate('SignUp')}
+      >
       <Text style={{
                 fontSize:20,
                 fontWeight:'bold',

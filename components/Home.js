@@ -1,20 +1,23 @@
-import React from 'react';
-import { View,Text,StyleSheet,Dimensions,TouchableOpacity} from 'react-native';
+import React,{useEffect} from 'react';
 import Feed from './Feed';
 import Ideas from './Ideas';
 import Profile from './Profile';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import {BackHandler,Platform} from "react-native";
 
 
 const Tab = createBottomTabNavigator();
-const {height,width}=Dimensions.get('screen');
-const Home=()=> {
+const Home=({navigation})=> {
+    useEffect(()=>{
+        navigation.addListener('beforeRemove', (e) => {
+            Platform.OS==='ios' ? e.preventDefault() : BackHandler.exitApp();
+        });
+    },[navigation]);
     return (
-        <View style={{height,width}}>
         <Tab.Navigator  tabBarOptions={{
           activeTintColor: '#82E0AA',
-          inactiveTintColor: 'gray',
+          inactiveTintColor: 'black',
         }} 
         >
         <Tab.Screen name="Home" component={Feed} options={{
@@ -33,13 +36,8 @@ const Home=()=> {
             )
         }} />
       </Tab.Navigator>
-    </View>
     )
 }
 
 export default Home;
 
-
-const styles=StyleSheet.create({
-
-});

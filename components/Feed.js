@@ -1,49 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect} from 'react';
 import { View,Text,StyleSheet,FlatList,Image,Dimensions,StatusBar,Platform, TouchableOpacity, Modal} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import firebase from '../config/firebaseConfig';
 
 
 const {width,height}=Dimensions.get('screen');
 
-
-const data=[
-    {
-        name: 'Eden Hazard',
-        pic:'https://images.pexels.com/photos/1139743/pexels-photo-1139743.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940',
-        id: '1',
-        like:true
-    },
-    {
-        name: 'Julia Roberts',
-        pic:'https://images.pexels.com/photos/4673418/pexels-photo-4673418.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500',
-        id:'212',
-        liked:true
-    },
-    {
-        name: 'Anna Melo',
-        pic:'https://images.pexels.com/photos/1702238/pexels-photo-1702238.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500',
-        id: '2',
-        liked:true
-    },
-    {
-        name: 'Raphael Varane',
-        pic:'https://images.pexels.com/photos/1987343/pexels-photo-1987343.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500',
-        id: '3',
-        liked:false
-    },
-    {
-        name: 'Alea Andoni',
-        pic:'https://images.pexels.com/photos/3279545/pexels-photo-3279545.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500',
-        id: '4',
-        liked:true
-    },
-    
-];
-
 const Feed = () => {
 
     const [openTopics,setOpenTopics]=useState(false);
-
+    const [result,setResult]=useState([]);
+    
+   useEffect(()=>{
+    var leadsRef = firebase.database().ref('feeddata');
+    
+leadsRef.on('value', function(snapshot) {
+    let data=[];
+    snapshot.forEach(function(childSnapshot) {
+      data=[...data,childSnapshot.val()];
+    });
+    setResult(data);
+});
+   },[]);
 
     const renderItem = ({ item }) => {
         return (
@@ -52,7 +30,7 @@ const Feed = () => {
               <Image source={{uri:item.pic}} style={{width:50,height:50,borderRadius:25}} />
               <Text style={{fontSize:18,fontWeight:'bold',padding:15,color:'#CD6155'}}>{item.name}</Text>
           </View>
-          <Text style={{width:width/1.2}}>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</Text>
+            <Text style={{width:width/1.2}}>{item.content}</Text>
           <View style={{flexDirection:'row',alignItems:'center',marginTop:15,}}>
           <TouchableOpacity style={{flexDirection:'row',alignItems:'center'}}>
           <Icon name="rocket" size={25}  style={{
@@ -78,7 +56,7 @@ const Feed = () => {
       };
     
     return (
-    <View style={{marginTop:Platform.OS==='ios' ? 20 :  StatusBar.currentHeight,height:height/1.13}}>
+    <View style={{marginTop:Platform.OS==='ios' ? 20 :  StatusBar.currentHeight,flex:1}}>
         <TouchableOpacity
         onPress={()=>setOpenTopics(true)}
         style={{backgroundColor:'black',}}
@@ -89,7 +67,8 @@ const Feed = () => {
      </View>
      </TouchableOpacity>
      <FlatList
-     data={data}
+     data={result}
+     style={{paddingBottom:8}}
      keyExtractor={item=>item.id}
      renderItem={renderItem}/>
      <Modal 

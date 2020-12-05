@@ -4,14 +4,21 @@ import LogIn from './components/LogIn';
 import SignUp from './components/SignUp';
 import Home from './components/Home';
 import { NavigationContainer } from '@react-navigation/native';
+import {createStackNavigator} from '@react-navigation/stack';
+
+
+const Stack=createStackNavigator();
 
 export default function App() {
   return (
-    <View>
-       <StatusBar barStyle = "dark-content" hidden = {false} backgroundColor = "#ABEBC6" translucent = {true}/>
        <NavigationContainer>
-      <Home />
-      </NavigationContainer>
-    </View>
+       <Stack.Navigator  screenOptions={{
+        headerShown: false
+                        }}>
+       <Stack.Screen name="LogIn" component={LogIn}/>
+       <Stack.Screen name="SignUp" component={SignUp}/>
+       <Stack.Screen name="Main" component={Home}/>
+       </Stack.Navigator>
+       </NavigationContainer>
   );
 }
