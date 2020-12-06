@@ -1,10 +1,11 @@
 import React,{useState,useEffect} from 'react';
-import { StyleSheet,Image, Text, TextInput, View,ImageBackground,Dimensions, TouchableOpacity,Button} from 'react-native';
+import { StyleSheet,Image, Text, TextInput, View,ImageBackground,Dimensions, TouchableOpacity,Keyboard} from 'react-native';
 import { Icon } from 'react-native-elements';
 import {LinearGradient} from 'expo-linear-gradient';
 import * as ImagePicker from 'expo-image-picker';
 import profilePic from '../asset_sources/profpic.jpg';
 import firebase from '../config/firebaseConfig';
+
 
 
 
@@ -17,6 +18,9 @@ const SignUp = ({navigation}) => {
     const [password,setPassword]=useState("");
     const [errorMsg,setErrorMsg]=useState("");
     const [failed,setFailed]=useState(false);
+    const [heightKey,setHeightKey]=useState(0);
+    const [isOpen,setOpen]=useState(false);
+  
 
     useEffect(() => {
         async () => {
@@ -28,6 +32,28 @@ const SignUp = ({navigation}) => {
           }
         };
       }, []);
+
+      useEffect(() => {
+        Keyboard.addListener("keyboardDidShow", _keyboardDidShow);
+        Keyboard.addListener("keyboardDidHide", _keyboardDidHide);
+    
+        // cleanup function
+        return () => {
+          Keyboard.removeListener("keyboardDidShow", _keyboardDidShow);
+          Keyboard.removeListener("keyboardDidHide", _keyboardDidHide);
+        };
+      }, []);
+
+      const _keyboardDidShow = (event) => {
+        setHeightKey(event.endCoordinates.height);
+        setOpen(true);
+      }
+    
+    
+      const _keyboardDidHide = () => {
+        setHeightKey(0);
+        setOpen(false);
+      };
 
       const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -56,17 +82,16 @@ const SignUp = ({navigation}) => {
             setFailed(false);
           }).catch(function(error) {
             setErrorMsg(error.message);
-            setFailed(true);
           });
         })
         .catch((error) => {
             setErrorMsg(error.message);
-            setFailed(true);
          });
       }
 
     return (
-        <View>
+        <View style={{marginTop: isOpen ? -heightKey + 50:0}}>
+          <View>
         <ImageBackground source={require('../asset_sources/login.jpg')} style={{width,height,}}/>
         <View style={{position:'absolute',width,height,backgroundColor:'rgba(234, 250, 241,0.4)'}}/>
         <View style={{position:'absolute',top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center'}}>
@@ -110,7 +135,7 @@ const SignUp = ({navigation}) => {
        size={20}
           />
       <TextInput
-      style={styles.input}
+      style={{...styles.input,}}
       placeholderTextColor='#2C2C2C'
       secureTextEntry
       placeholder="Password"
@@ -136,7 +161,9 @@ const SignUp = ({navigation}) => {
     </TouchableOpacity>
     
      </View>
+     </View>
     </View>
+    
     )
 }
 

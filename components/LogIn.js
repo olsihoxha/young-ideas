@@ -1,24 +1,33 @@
 import React, { useState,useEffect } from 'react';
-import { StyleSheet, Text, TextInput, View,ImageBackground,Dimensions, TouchableOpacity,} from 'react-native';
+import { StyleSheet, Text, TextInput, View,ImageBackground,Dimensions, TouchableOpacity,Keyboard} from 'react-native';
 import { Icon } from 'react-native-elements';
 import {LinearGradient} from 'expo-linear-gradient';
 import firebase from '../config/firebaseConfig';
 
 
 
-
 const {width,height}=Dimensions.get('screen');
 const LogIn = ({navigation}) => {
 
+  const [isLogged,setIsLogged]=useState(true);
+
     useEffect(() => {
-      if(firebase.auth().currentUser !=null){
-        navigation.navigate("Main");
-      }
-    }, [navigation]);
+      firebase.auth().onAuthStateChanged(function(user) {
+        if (user) {
+          setIsLogged(true);
+          navigation.navigate("Main");
+        } 
+         else {
+          setIsLogged(false);
+         }
+      });
+    });
 
     const [email,setEmail]=useState("");
     const [password,setPassword]=useState("");
     const [failed,setFailed]=useState(false);
+    const [heightKey,setHeightKey]=useState(0);
+    const [isOpen,setIsOpen]=useState(false);
 
     function LogInProcess(){
     firebase.auth().signInWithEmailAndPassword(email, password)
@@ -34,9 +43,36 @@ const LogIn = ({navigation}) => {
     });
    }
 
-    
-    return (
-      <View>
+
+   useEffect(() => {
+    Keyboard.addListener("keyboardDidShow", _keyboardDidShow);
+    Keyboard.addListener("keyboardDidHide", _keyboardDidHide);
+
+    // cleanup function
+    return () => {
+      Keyboard.removeListener("keyboardDidShow", _keyboardDidShow);
+      Keyboard.removeListener("keyboardDidHide", _keyboardDidHide);
+    };
+  }, []);
+
+  
+  const _keyboardDidShow = (event) => {
+    setHeightKey(event.endCoordinates.height);
+    setIsOpen(true);
+  }
+
+
+  const _keyboardDidHide = () => {
+    setHeightKey(0);
+    setIsOpen(false);
+  };
+
+
+
+    const LogInContent=()=>{
+        if(!isLogged){
+          return(
+            <View>
           <ImageBackground source={require('../asset_sources/login.jpg')} style={{width,height,}}/>
           <View style={{position:'absolute',width,height,backgroundColor:'rgba(234, 250, 241,0.4)'}}/>
           <View style={{position:'absolute',top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center'}}>
@@ -120,6 +156,26 @@ const LogIn = ({navigation}) => {
                 }}>Sign Up.</Text>
         </TouchableOpacity>
        </View>
+       </View>
+          );
+        }else{
+            return(
+              <View style={{justifyContent:'center',width,height,backgroundColor:'black'}}>
+              <Text style={{
+              fontSize:35,
+              fontWeight:'bold',
+              color:"#A93226",
+              textAlign:'left',
+              marginLeft:25
+              }}>{"{\nthe\n free\n  thinkers\n    mansion\n}"}</Text>
+              </View>
+            );
+        }
+    }
+    
+    return (
+      <View style={{marginTop:isOpen? -heightKey+120:0}}>
+      <LogInContent/>
       </View>
     );
 }
