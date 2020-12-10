@@ -4,16 +4,31 @@ import Ideas from './Ideas';
 import Profile from './Profile';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import {BackHandler,Platform} from "react-native";
+import {BackHandler,Alert} from "react-native";
 
 
 const Tab = createBottomTabNavigator();
 const Home=({navigation})=> {
-    useEffect(()=>{
-        navigation.addListener('beforeRemove', (e) => {
-            Platform.OS==='ios' ? e.preventDefault() : BackHandler.exitApp();
-        });
-    },[navigation]);
+    useEffect(() => {
+        const backAction = () => {
+          Alert.alert("Hold on!", "Are you sure you want to go back?", [
+            {
+              text: "Cancel",
+              onPress: () => null,
+              style: "cancel"
+            },
+            { text: "YES", onPress: () => BackHandler.exitApp() }
+          ]);
+          return true;
+        };
+    
+        const backHandler = BackHandler.addEventListener(
+          "hardwareBackPress",
+          backAction
+        );
+    
+        return () => backHandler.remove();
+      }, []);
     return (
         <Tab.Navigator  tabBarOptions={{
           activeTintColor: '#82E0AA',

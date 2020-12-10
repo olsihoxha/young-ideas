@@ -1,6 +1,7 @@
 import React,{useEffect,useState} from 'react';
 import { View,Text,Platform,StatusBar,Dimensions,Image,TouchableOpacity} from 'react-native';
 import firebase from '../config/firebaseConfig';
+import { CommonActions } from '@react-navigation/native';
 
 
 const {height,width}=Dimensions.get('screen');
@@ -36,7 +37,16 @@ const Profile = ({navigation}) => {
         style={{backgroundColor:"#FADBD8",alignSelf:'baseline',paddingVertical:7,paddingHorizontal:35,borderRadius:30}}
         onPress={()=>{
             firebase.auth().signOut().then(()=>{
-                
+                navigation.dispatch(
+                    CommonActions.reset({
+                        index:0,
+                        routes:[
+                            {
+                                name:'LogIn',
+                            },
+                        ],
+                    })
+                );
             });
         }}
         >

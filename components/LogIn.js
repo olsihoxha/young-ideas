@@ -29,8 +29,7 @@ const LogIn = ({navigation}) => {
           setIsLogged(false);
          }
       });
-    });
-
+    },[]);
 
     function ButtonBody(){
       if(loading){
@@ -89,8 +88,8 @@ const LogIn = ({navigation}) => {
 
       
     return (
-        <View style={{marginTop: isOpen ? -width/3:0}}>
-          <View>
+        <View style={{marginTop: isOpen ? -width/4:0}}>
+         {!isLogged && <View>
         <ImageBackground source={require('../asset_sources/login.jpg')} style={{width,height,}}/>
         <View style={{position:'absolute',width,height,backgroundColor:'rgba(234, 250, 241,0.4)'}}/>
         <View style={{position:'absolute',top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center'}}>
@@ -139,7 +138,9 @@ const LogIn = ({navigation}) => {
       <ButtonBody/>
     </LinearGradient>
     </TouchableOpacity>
-    <TouchableOpacity>
+    <TouchableOpacity
+    onPress={()=> navigation.navigate('GetHelp')}
+    >
       <Text style={{
                 fontSize:15,
                 fontWeight:'bold',
@@ -171,7 +172,16 @@ const LogIn = ({navigation}) => {
                 }}>Sign Up.</Text>
         </TouchableOpacity>
      </View>
-     </View>
+     </View>}
+     {isLogged && <View style={{justifyContent:'center',width,height,backgroundColor:'black'}}>
+              <Text style={{
+              fontSize:35,
+              fontWeight:'bold',
+              color:"#A93226",
+              textAlign:'left',
+              marginLeft:25
+              }}>{"{\nthe\n free\n  thinkers\n    mansion\n}"}</Text>
+              </View>}
     </View>
     
     )
