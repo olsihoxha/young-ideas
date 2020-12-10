@@ -18,6 +18,7 @@ const Home=({navigation})=> {
         <Tab.Navigator  tabBarOptions={{
           activeTintColor: '#82E0AA',
           inactiveTintColor: 'black',
+          keyboardHidesTabBar:true
         }} 
         >
         <Tab.Screen name="Home" component={Feed} options={{

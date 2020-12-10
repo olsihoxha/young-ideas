@@ -1,5 +1,5 @@
 import React,{useState,useEffect} from 'react';
-import { StyleSheet,Image, Text, TextInput, View,ImageBackground,Dimensions, TouchableOpacity,Keyboard} from 'react-native';
+import { StyleSheet,Image, Text, TextInput, View,ImageBackground,Dimensions, TouchableOpacity,Keyboard, ActivityIndicator} from 'react-native';
 import { Icon } from 'react-native-elements';
 import {LinearGradient} from 'expo-linear-gradient';
 import * as ImagePicker from 'expo-image-picker';
@@ -20,6 +20,20 @@ const SignUp = ({navigation}) => {
     const [failed,setFailed]=useState(false);
     const [heightKey,setHeightKey]=useState(0);
     const [isOpen,setOpen]=useState(false);
+    const [loading,setLoading]=useState(false);
+
+
+    function ButtonBody(){
+      if(loading){
+        return(
+          <ActivityIndicator size={25} color="#7D3C98" />
+        )
+        }else{
+          return( <Text style={{fontWeight:'bold'}}>
+          Sign Up  
+        </Text>)
+      }
+    }
   
 
     useEffect(() => {
@@ -57,7 +71,7 @@ const SignUp = ({navigation}) => {
 
       const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: ImagePicker.MediaTypeOptions.All,
+          mediaTypes: "Images",
           allowsEditing: true,
           aspect: [4, 4],
           quality: 1,
@@ -69,24 +83,70 @@ const SignUp = ({navigation}) => {
 
       };
 
+      const uploadAsFile = async (uri,nameImage) => {
+
+        console.log("uploadAsFile", uri)
+        const response = await fetch(uri);
+        const blob = await response.blob();
+      
+        var metadata = {
+          contentType: 'image/jpeg',
+        };
+      
+        const ref = firebase
+          .storage()
+          .ref()
+          .child(nameImage)
+      
+        const task = ref.put(blob, metadata);
+      
+        return new Promise((resolve, reject) => {
+          task.on(
+            'state_changed',
+            (snapshot) => {
+              var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+              console.log('Upload is ' + progress + '% done');
+            },
+            (error) =>{setLoading(false); 
+                      setErrorMsg(error.message)}, /* this is where you would put an error callback! */
+            () => {
+              var downloadURL = task.snapshot.ref.getDownloadURL().then(function(dURL) {
+                firebase.database().ref("users/"+nameImage).set({
+                  picurl: dURL,
+                  name,
+                  email
+                }).then(r => {
+                  navigation.navigate("Main");
+                  setFailed(false);
+                  setLoading(false);
+                }, e => {
+                  setLoading(false);
+                  setErrorMsg(e.message);  
+                })
+              });
+              
+              
+            }
+          );
+        });
+      }
 
       function createAccount(){
-        firebase.auth().createUserWithEmailAndPassword(email, password)
+        setLoading(true);
+       if(name && email && password && image){ firebase.auth().createUserWithEmailAndPassword(email, password)
         .then((userCred) => {
-          userCred.user.updateProfile({
-            displayName: name,
-            photoURL: image
-          }).then(function() {
-            // Update successful.
-            navigation.navigate("Main");
-            setFailed(false);
-          }).catch(function(error) {
-            setErrorMsg(error.message);
-          });
+            setLoading(false);
+            uploadAsFile(image,userCred.user.uid);
         })
         .catch((error) => {
             setErrorMsg(error.message);
+            setLoading(false);
+            setLoading(false);
          });
+        }else{
+          alert("All fields are required");
+          setLoading(false);
+        }
       }
 
     return (
@@ -154,9 +214,7 @@ const SignUp = ({navigation}) => {
       colors={["#ff7e5f", "#feb47b"]}
       style={styles.button}
     >
-      <Text style={{fontWeight:'bold'}}>
-        Sign Up  
-      </Text>
+      <ButtonBody/>
     </LinearGradient>
     </TouchableOpacity>
     
